@@ -1,12 +1,7 @@
-import base64
-import numpy as np
-import torch
-from PIL import Image
-from io import BytesIO
 from .BaseImageGenerator import BaseImageGenerator
 
 
-class ImageGeneratorImg2img(BaseImageGenerator):
+class ImageGeneratorTxt2img(BaseImageGenerator):
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -34,19 +29,8 @@ class ImageGeneratorImg2img(BaseImageGenerator):
                     {"default": "Free (自由比例)"},
                 ),
                 "image_size": (["1K", "2K"], {"default": "1K"}),
-                "image1": ("IMAGE",),
             },
-            "optional": {
-                "image2": ("IMAGE",),
-                "image3": ("IMAGE",),
-                "image4": ("IMAGE",),
-                "image5": ("IMAGE",),
-                "image6": ("IMAGE",),
-                "image7": ("IMAGE",),
-                "image8": ("IMAGE",),
-                "image9": ("IMAGE",),
-                "image10": ("IMAGE",),
-            },
+            "optional": {},
         }
 
     RETURN_TYPES = ("IMAGE", "STRING")
@@ -61,18 +45,8 @@ class ImageGeneratorImg2img(BaseImageGenerator):
         model,
         aspect_ratio,
         image_size,
-        image1,
-        image2=None,
-        image3=None,
-        image4=None,
-        image5=None,
-        image6=None,
-        image7=None,
-        image8=None,
-        image9=None,
-        image10=None,
     ):
-        """生成图像 - 支持多张参考图片"""
+        """生成图像 - 纯文本到图像"""
         # 重置日志消息
         self.log_messages = []
 
@@ -92,57 +66,8 @@ class ImageGeneratorImg2img(BaseImageGenerator):
                 "Content-Type": "application/json",
             }
 
-            # 构造请求体
-            parts = []
-
-            # 收集所有图像（image1 到 image10）
-            all_images = [image1, image2, image3, image4, image5, image6, image7, image8, image9, image10]
-
-            # 处理参考图像(单张或多张) - 转换为内联数据格式
-            for idx, images in enumerate(all_images, 1):
-                if images is not None:
-                    try:
-                        # 确定图像数量
-                        batch_size = images.shape[0]
-                        self.log(f"检测到 image{idx} 有 {batch_size} 张图像")
-
-                        # 逐一处理每张图像
-                        for i in range(batch_size):
-                            # 获取单张图像
-                            input_image = images[i].cpu().numpy()
-
-                            # 转换为PIL图像
-                            input_image = (input_image * 255).astype(np.uint8)
-                            pil_image = Image.fromarray(input_image)
-
-                            self.log(
-                                f"参考图像 image{idx}[{i + 1}] 处理成功，尺寸: {pil_image.width}x{pil_image.height}"
-                            )
-
-                            # 转换为base64
-                            img_byte_arr = BytesIO()
-                            pil_image.save(img_byte_arr, format="PNG")
-                            img_byte_arr.seek(0)
-                            image_base64 = base64.b64encode(img_byte_arr.read()).decode(
-                                "utf-8"
-                            )
-
-                            # 添加图像到 parts（Gemini 格式）
-                            parts.append(
-                                {
-                                    "inlineData": {
-                                        "mimeType": "image/png",
-                                        "data": image_base64,
-                                    }
-                                }
-                            )
-
-                        self.log(f"成功添加 image{idx} 的图像到请求中")
-                    except Exception as img_error:
-                        self.log(f"image{idx} 处理错误: {str(img_error)}")
-
-            # 添加文本提示
-            parts.append({"text": prompt})
+            # 构造请求体（仅包含文本提示）
+            parts = [{"text": prompt}]
 
             # 构造API payload
             payload = self.build_api_payload(parts, aspect_ratio, image_size)
@@ -191,6 +116,3 @@ class ImageGeneratorImg2img(BaseImageGenerator):
             error_message = f"处理过程中出错: {str(e)}"
             self.log(f"Gemini图像生成错误: {str(e)}")
             return self.get_error_response(error_message)
-
-
-
