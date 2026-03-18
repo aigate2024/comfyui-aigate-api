@@ -1,15 +1,15 @@
 [project]
-name = "gemini-api"
-description = "A custom node for ComfyUI to integrate Google Gemini API."
+name = "aigate-api"
+description = "A custom node for ComfyUI to integrate AiGate API."
 version = "1.0.7"
 license = {file = "LICENSE"}
 dependencies = ["Pillow>=10.1.0", "requests", "numpy", "torch"]
 
 [project.urls]
-Repository = "https://github.com/CY-CHENYUE/ComfyUI-Gemini-API"
+Repository = "https://github.com/jyoketsu/ComfyUI-WaaS-API"
 #  Used by Comfy Registry https://comfyregistry.org
 
 [tool.comfy]
-PublisherId = "cychenyue"
-DisplayName = "ComfyUI-Gemini-API"
+PublisherId = "xujie"
+DisplayName = "云扉AiGate"
 Icon = ""

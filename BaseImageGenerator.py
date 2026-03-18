@@ -12,7 +12,8 @@ class BaseImageGenerator:
     """图像生成器基类，包含所有共同的功能"""
 
     def __init__(self):
-        self.api_host = "https://api.chaojizhiti.com"
+        # self.api_host = "https://api.chaojizhiti.com"
+        self.api_host = "https://147ai.com"
         """初始化日志系统和API密钥存储"""
         self.log_messages = []  # 全局日志消息存储
         # 获取节点所在目录
@@ -185,10 +186,7 @@ class BaseImageGenerator:
     def process_response(self, response_data):
         """处理API响应，提取图像和文本"""
         # 检查响应格式（Gemini API 格式）
-        if (
-            "candidates" not in response_data
-            or len(response_data["candidates"]) == 0
-        ):
+        if "candidates" not in response_data or len(response_data["candidates"]) == 0:
             self.log("API响应格式错误：没有candidates字段")
             return None, None, None
 
@@ -241,9 +239,7 @@ class BaseImageGenerator:
                         # 检查是否有 thoughtSignature
                         thought_signature = part.get("thoughtSignature", "")
                         if thought_signature:
-                            response_text += (
-                                f"Thought Signature: {thought_signature}\n"
-                            )
+                            response_text += f"Thought Signature: {thought_signature}\n"
                 except Exception as e:
                     self.log(f"处理内联图像数据失败: {str(e)}")
                     traceback.print_exc()
@@ -258,7 +254,7 @@ class BaseImageGenerator:
             if not response_text:
                 response_text = "API未返回任何图像或文本"
 
-        model_version = response_data.get('modelVersion', 'unknown')
+        model_version = response_data.get("modelVersion", "unknown")
         return img_tensor, response_text, model_version
 
     def get_error_response(self, error_message):

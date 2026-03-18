@@ -12,7 +12,7 @@ class ImageGeneratorImg2img(BaseImageGenerator):
         return {
             "required": {
                 "prompt": ("STRING", {"multiline": True}),
-                "api_key": ("STRING", {"default": "", "multiline": False}),
+                "settings": ("STRUCT",),
                 "model": (
                     [
                         "PRO-低价渠道版",
@@ -57,7 +57,7 @@ class ImageGeneratorImg2img(BaseImageGenerator):
     def generate_image(
         self,
         prompt,
-        api_key,
+        settings,
         model,
         aspect_ratio,
         image_size,
@@ -77,8 +77,9 @@ class ImageGeneratorImg2img(BaseImageGenerator):
         self.log_messages = []
 
         try:
-            # 获取API密钥
-            actual_api_key = self.get_api_key(api_key)
+            # 从settings中提取API密钥
+            api_key_from_settings = settings.get("apiKey", "") if isinstance(settings, dict) else ""
+            actual_api_key = self.get_api_key(api_key_from_settings)
 
             if not actual_api_key:
                 error_message = (
