@@ -2,93 +2,178 @@
 
 [中文](README.md) | English
 
-A custom node for ComfyUI to integrate Google Gemini API.
+A collection of ComfyUI image generation nodes based on the Yunfei (云扉) API. Includes text-to-image, image-to-image generation, and more.
+
+## Features
+
+This project provides three main nodes to support flexible image generation workflows:
+
+1. **Settings API Key Node** - Manage and configure API credentials
+2. **Image Generator - Text to Image** - Generate images from text descriptions
+3. **Image Generator - Image to Image** - Generate new images based on reference images
 
 ## Installation
 
 ### Method 1: Manual Installation
 
 1. Clone this repository into your ComfyUI's `custom_nodes` directory:
-   ```
+   ```bash
    cd ComfyUI/custom_nodes
-   git clone https://github.com/CY-CHENYUE/ComfyUI-Gemini-API
+   git clone https://github.com/CY-CHENYUE/ComfyUI-WaaS-API.git
    ```
 
-2. Install required dependencies:
+2. Enter the project directory and install dependencies:
+   ```bash
+   cd ComfyUI-WaaS-API
+   ```
 
    If you're using ComfyUI portable version:
-   ```
+   ```bash
    ..\..\..\python_embeded\python.exe -m pip install -r requirements.txt
    ```
 
    If you're using your own Python environment:
+   ```bash
+   pip install -r requirements.txt
    ```
-   path\to\your\python.exe -m pip install -r requirements.txt
-   ```
+
+3. Restart ComfyUI
 
 ### Method 2: Install via ComfyUI Manager
 
-   1. Install and open ComfyUI Manager in ComfyUI
-   2. Search for "Gemini API"
-   3. Click the install button
+1. Install and open ComfyUI Manager in ComfyUI
+2. Search for "WaaS-API" or "Yunfei"
+3. Click the install button
+4. Restart ComfyUI
 
-Restart ComfyUI after installation
+## Node Documentation
 
-## Node Description
+### 1. Settings API Key
 
-### Gemini 2.0 image
+**Purpose**: Configure and save the API key
 
-![alt text](workflow/Gemini-API.png)
+**Input Parameters**:
+- **apiKey** (required): Your Yunfei API key
 
-![alt text](workflow/Gemini-API-多图.png)
+**Output**:
+- **STRUCT** (Structure): A structure containing API key information for use by other nodes
 
-A node that generates images using the Gemini API.
+**Usage Notes**:
+- Connect this node's output to the `settings` input of text-to-image or image-to-image nodes
+- The API key is securely passed to other nodes
 
-**Input Parameters:**
-- **prompt** (required): Text prompt describing the image you want to generate
-- **api_key** (required): Your Google Gemini API key (automatically saved after first setup)
-- **model**: Model selection
-- **width**: Width of the generated image (512-2048 pixels)
-- **height**: Height of the generated image (512-2048 pixels)
-- **aspect_ratio**: Choose image orientation (Free, Landscape, Portrait, Square)
-- **temperature**: Parameter controlling generation diversity (0.0-2.0)
-- **seed** (optional): Random seed for reproducible results
-- **images** (optional): Reference image input, supports multiple images
+---
 
-**Outputs:**
-- **image**: Generated image that can be connected to other ComfyUI nodes
-- **API Respond**: Text information containing processing logs and API response
+### 2. Image Generator - Text to Image (aigate_txt2img)
 
-**Use Cases:**
-- Creating unique concept art
-- Generating images from text descriptions
-- Creating style-consistent new images using one or multiple reference images
-- Image editing based on existing images
+**Purpose**: Generate images from text descriptions
 
-**Multi-Image Feature:**
-- The node now supports inputting multiple reference images simultaneously
-- Multiple images will be sent together to the Gemini API as style reference
-- The system automatically adjusts the prompt to inform the model about multiple reference images
-- This feature is ideal for mixing multiple styles or providing more reference information
+**Input Parameters**:
+- **prompt** (required): Image description text, supports both Chinese and English
+- **settings** (required): Structure from the "Settings API Key" node
+- **model** (required): Select the model to use
+- **aspect_ratio** (optional): Image orientation
+  - `Free (Free ratio)` - System decides automatically
+  - `Landscape` - 16:9 widescreen
+  - `Portrait` - 9:16 portrait
+  - `Square` - 1:1 square
+- **image_size** (optional): Generated image resolution
+  - `1K` - Standard quality
+  - `2K` - High quality
+
+**Outputs**:
+- **image**: Generated image, can be connected to other nodes for further processing
+- **API Respond**: Text information containing processing logs and API responses
+
+**Use Cases**:
+- Create unique concept art from text descriptions
+- Generate illustrations, backgrounds, or design materials
+- Quickly prototype visual content
+
+---
+
+### 3. Image Generator - Image to Image (aigate_img2img)
+
+**Purpose**: Generate new images based on reference images, supports multiple references
+
+**Input Parameters**:
+- **prompt** (required): Description or modification instructions for the generated image
+- **settings** (required): Structure from the "Settings API Key" node
+- **model** (required): Select the model to use
+- **aspect_ratio** (optional): Same as text-to-image
+- **image_size** (optional): Same as text-to-image
+- **image1** (required): First reference image
+- **image2-image10** (optional): Up to 9 additional reference images
+
+**Outputs**:
+- **image**: Generated image
+- **API Respond**: Processing logs and API response information
+
+**Multiple Reference Images Feature**:
+- Support for up to 10 reference images in a single generation
+- Multiple reference images are sent together to the API as style references
+- Ideal for scenarios requiring mixed styles or detailed references
+- The first image (image1) is required, others are optional
+
+**Use Cases**:
+- Generate new images with similar style to reference images
+- Image style transfer
+- Create variations based on references
+- Multi-source material fusion
+
+---
 
 ## Getting API Key
 
-1. Visit [Google AI Studio](https://aistudio.google.com/apikey)
-2. Create an account or sign in
-3. Create a new API key in the "API Keys" section
-4. Copy the API key and paste it into the node's api_key parameter (only needed for first use, will be saved automatically)
+1. Visit the official Yunfei API platform
+2. Register or sign in to your account
+3. Create a new API key in the API key management section
+4. Copy the key to the "Settings API Key" node (no need to re-enter repeatedly)
 
-## Temperature Parameter Guide
+## Project Architecture
 
-- Temperature range: 0.0 to 2.0
-- Lower temperature (near 0): More deterministic, predictable results
-- Higher temperature (near 2): More diverse, creative results
-- Default value 1.0: Balances determinism and creativity
+```
+BaseImageGenerator.py
+├── Shared methods
+├── API calls
+├── Response handling
+└── Logging management
+
+ImageGeneratorTxt2img.py (Inherits)
+└── Text-to-image specific logic
+
+ImageGeneratorImg2img.py (Inherits)
+└── Image-to-image specific logic + multiple image handling
+
+SettingsNode.py
+└── API key configuration
+```
 
 ## Important Notes
 
-- API may have usage limits or costs, please refer to Google's official documentation
-- Image generation quality and speed depend on Google's server status and your network connection
-- Reference image feature will send your images to Google services, please be aware of privacy implications
-- API key needs to be entered only once, it will be stored in gemini_api_key.txt in the node directory
-- About Image Orientation: Gemini API generates images based on the selected orientation (landscape, portrait, or square), though the model may not always perfectly follow these instructions
+- The API may have usage limits or costs, please refer to the official documentation
+- Image generation quality and speed depend on API service status and network connection
+- Reference images will be sent to the API servers, please be aware of privacy concerns
+- API keys are securely transmitted via HTTP Authorization header
+- Image orientation is a suggestion parameter; model output may not strictly follow requirements
+
+## File Description
+
+- `BaseImageGenerator.py` - Base class containing all shared methods
+- `ImageGeneratorTxt2img.py` - Text-to-image node implementation
+- `ImageGeneratorImg2img.py` - Image-to-image node implementation
+- `SettingsNode.py` - API key settings node
+- `__init__.py` - Node registration and mapping
+- `requirements.txt` - Project dependencies
+
+## Contact
+
+- X (Twitter): [@cychenyue](https://x.com/cychenyue)
+- TikTok: [@cychenyue](https://www.tiktok.com/@cychenyue)
+- YouTube: [@CY-CHENYUE](https://www.youtube.com/@CY-CHENYUE)
+- BiliBili: [@CY-CHENYUE](https://space.bilibili.com/402808950)
+- Xiaohongshu: [@CY-CHENYUE](https://www.xiaohongshu.com/user/profile/6360e61f000000001f01bda0)
+
+## License
+
+Please refer to the LICENSE file for licensing information
