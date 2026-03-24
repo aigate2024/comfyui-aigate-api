@@ -1,7 +1,5 @@
 # ComfyUI-WaaS-API
 
-中文 | [English](README_EN.md)
-
 基于云扉 API 的 ComfyUI 图像生成节点集合。包含文生图、图生图等功能。
 
 ## 功能介绍
@@ -14,37 +12,13 @@
 
 ## 安装说明
 
-### 方法一：手动安装
-
 1. 将此存储库克隆到 ComfyUI 的 `custom_nodes` 目录：
    ```bash
-   cd ComfyUI/custom_nodes
-   git clone https://github.com/CY-CHENYUE/ComfyUI-WaaS-API.git
+   cd ~/comfyui/ComfyUI/custom_nodes
+   git clone https://github.com/jyoketsu/ComfyUI-WaaS-API.git
    ```
 
-2. 进入项目目录并安装依赖：
-   ```bash
-   cd ComfyUI-WaaS-API
-   ```
-
-   如果你使用 ComfyUI 便携版：
-   ```bash
-   ..\..\..\python_embeded\python.exe -m pip install -r requirements.txt
-   ```
-
-   如果你使用自己的 Python 环境：
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. 重启 ComfyUI
-
-### 方法二：通过 ComfyUI Manager 安装
-
-1. 在 ComfyUI 中安装并打开 ComfyUI Manager
-2. 在 Manager 中搜索"WaaS-API"或"云扉"
-3. 点击安装按钮
-4. 重启 ComfyUI
+2. 重启 ComfyUI
 
 ## 节点说明
 
