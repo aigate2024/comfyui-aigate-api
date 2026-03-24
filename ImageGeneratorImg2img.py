@@ -1,4 +1,5 @@
 import base64
+import json
 import numpy as np
 import torch
 from PIL import Image
@@ -9,20 +10,15 @@ from .BaseImageGenerator import BaseImageGenerator
 class ImageGeneratorImg2img(BaseImageGenerator):
     @classmethod
     def INPUT_TYPES(cls):
+        model_choices = BaseImageGenerator.get_model_choices()
+        default_model = model_choices[0] if model_choices else ""
         return {
             "required": {
                 "prompt": ("STRING", {"multiline": True}),
                 "settings": ("STRUCT",),
                 "model": (
-                    [
-                        "PRO-低价渠道版",
-                        "PRO-官方稳定版",
-                        "V2-低价渠道版",
-                        "V2-官方稳定版",
-                        "gemini-3-pro-image-preview",
-                        "gemini-3.1-flash-image-preview",
-                    ],
-                    {"default": "gemini-3-pro-image-preview"},
+                    model_choices,
+                    {"default": default_model},
                 ),
                 "aspect_ratio": (
                     [
@@ -91,6 +87,7 @@ class ImageGeneratorImg2img(BaseImageGenerator):
             # 设置API请求头
             headers = {
                 "Content-Type": "application/json",
+                "Authorization": actual_api_key,
             }
 
             # 构造请求体
@@ -148,30 +145,41 @@ class ImageGeneratorImg2img(BaseImageGenerator):
             # 构造API payload
             payload = self.build_api_payload(parts, aspect_ratio, image_size)
 
+            # 将模型显示名称转换为模型ID
+            model_id = self.get_model_pid(model)
+            
             # 根据选择的模型构造API地址
-            self.api_base_url = self.api_base_url_template.format(model=model)
+            self.api_base_url = self.api_base_url_template.format(model=model_id)
+            self.log(f"使用模型: {model} (ID: {model_id})")
             self.log(f"API地址: {self.api_base_url}")
 
-            # 构造带 API key 的完整 URL
-            api_url_with_key = f"{self.api_base_url}?key={actual_api_key}"
+            # 构造API URL（不需要在URL中添加key参数）
+            api_url = f"{self.api_base_url}?code={model_id}"
+
+            # 调试输出：打印请求信息
+            # print(f"\n=== API请求调试信息 ===")
+            # print(f"URL: {api_url}")
+            # print(f"Headers: {json.dumps(headers, indent=2)}")
+            # print(f"Payload: {json.dumps(payload, indent=2)}")
+            # print(f"========================\n")
 
             # 调用API
-            response = self.call_api(api_url_with_key, headers, payload)
+            response = self.call_api(api_url, headers, payload)
 
             # 检查响应状态
             if response.status_code != 200:
                 error_msg = f"API请求失败，状态码: {response.status_code}, 响应: {response.text}"
-                print(error_msg)
+                self.log(error_msg)
                 return self.get_error_response(error_msg)
 
             # 解析响应
             response_data = response.json()
 
             # 响应处理
-            print("API响应接收成功，正在处理...")
+            self.log("API响应接收成功，正在处理...")
 
             # 处理响应
-            img_tensor, response_text, model_version = self.process_response(response_data)
+            img_tensor, response_text, model_version = self.process_response(response_data.get("data", {}))
 
             # 检查响应格式
             if response_text is None:

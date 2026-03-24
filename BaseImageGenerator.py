@@ -6,23 +6,25 @@ from PIL import Image
 import requests
 from io import BytesIO
 import traceback
+import json
 
 
 class BaseImageGenerator:
     """图像生成器基类，包含所有共同的功能"""
 
+    # 类级变量
+    api_host = "http://waas.k8s.dev.inner"
+    _models_cache = None  # 类级别缓存
+    _models_map = {}  # pname -> pid 映射
+
     def __init__(self):
-        # self.api_host = "https://api.chaojizhiti.com"
-        self.api_host = "https://147ai.com"
         """初始化日志系统和API密钥存储"""
         self.log_messages = []  # 全局日志消息存储
         # 获取节点所在目录
         self.node_dir = os.path.dirname(os.path.abspath(__file__))
         self.key_file = os.path.join(self.node_dir, "gemini_api_key.txt")
         # API地址配置
-        self.api_base_url_template = (
-            f"{self.api_host}/v1beta/models/{{model}}:generateContent"
-        )
+        self.api_base_url_template = f"{self.api_host}/api/generate/image/content"
 
         # 检查依赖库版本
         try:
@@ -49,6 +51,67 @@ class BaseImageGenerator:
         if hasattr(self, "log_messages"):
             self.log_messages.append(message)
         return message
+
+    @classmethod
+    def get_available_models(cls):
+        """从API动态获取可用模型列表，返回格式：[{\"pname\": \"...\", \"pid\": \"...\"}, ...]"""
+        default_models = []
+
+        # 如果缓存存在，返回缓存
+        if cls._models_cache:
+            return cls._models_cache
+
+        try:
+            # 尝试从新API获取模型列表
+            api_url = f"{cls.api_host}/api/generate/image/types"
+            response = requests.get(api_url, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                # 处理新的API响应格式：{"code": 0, "data": [...], "ok": true}
+                if isinstance(data, dict) and data.get("ok"):
+                    models = data.get("data", [])
+                    if isinstance(models, list) and models:
+                        # 构建映射
+                        cls._models_map = {
+                            m.get("pname", ""): m.get("pid", "") for m in models
+                        }
+                        cls._models_cache = models
+                        return models
+                # 兼容旧格式（直接返回数组）
+                elif isinstance(data, list) and data:
+                    cls._models_map = {
+                        m.get("pname", ""): m.get("pid", "") for m in data
+                    }
+                    cls._models_cache = data
+                    return data
+        except Exception as e:
+            cls.log(f"获取模型列表失败: {e}")
+
+        # 返回默认列表
+        cls._models_cache = default_models
+        cls._models_map = {m.get("pname", ""): m.get("pid", "") for m in default_models}
+        return default_models
+
+    @classmethod
+    def get_model_choices(cls):
+        """获取UI显示的模型名称列表 (pname)"""
+        models = cls.get_available_models()
+        return [m.get("pname", "") for m in models if m.get("pname")]
+
+    @classmethod
+    def get_model_pid(cls, pname):
+        """根据显示名称 (pname) 获取模型ID (pid)"""
+        # 先确保映射已加载
+        if not cls._models_map:
+            cls.get_available_models()
+
+        # 查找映射
+        pid = cls._models_map.get(pname, "")
+        if pid:
+            return pid
+
+        # 如果未找到，返回原始名称（向后兼容）
+        return pname
 
     def get_api_key(self, user_input_key):
         """获取API密钥，优先使用用户输入的密钥"""
@@ -173,10 +236,10 @@ class BaseImageGenerator:
         }
         return payload
 
-    def call_api(self, api_url_with_key, headers, payload):
+    def call_api(self, api_url, headers, payload):
         """调用API并返回响应"""
         response = requests.post(
-            api_url_with_key,
+            api_url,
             headers=headers,
             json=payload,
             timeout=120,
