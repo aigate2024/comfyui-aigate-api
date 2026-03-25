@@ -49,6 +49,11 @@ class ImageGeneratorTxt2img(BaseImageGenerator):
         self.log_messages = []
 
         try:
+            # 验证prompt不为空
+            if not prompt or not prompt.strip():
+                error_message = "错误: Prompt不能为空，请输入描述文字"
+                self.log(error_message)
+                return self.get_error_response(error_message)
             # 从settings中提取API密钥
             api_key_from_settings = (
                 settings.get("apiKey", "") if isinstance(settings, dict) else ""

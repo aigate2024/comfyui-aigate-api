@@ -73,8 +73,15 @@ class ImageGeneratorImg2img(BaseImageGenerator):
         self.log_messages = []
 
         try:
+            # 验证prompt不为空
+            if not prompt or not prompt.strip():
+                error_message = "错误: Prompt不能为空，请输入描述文字"
+                self.log(error_message)
+                return self.get_error_response(error_message)
             # 从settings中提取API密钥
-            api_key_from_settings = settings.get("apiKey", "") if isinstance(settings, dict) else ""
+            api_key_from_settings = (
+                settings.get("apiKey", "") if isinstance(settings, dict) else ""
+            )
             actual_api_key = self.get_api_key(api_key_from_settings)
 
             if not actual_api_key:
@@ -94,7 +101,18 @@ class ImageGeneratorImg2img(BaseImageGenerator):
             parts = []
 
             # 收集所有图像（image1 到 image10）
-            all_images = [image1, image2, image3, image4, image5, image6, image7, image8, image9, image10]
+            all_images = [
+                image1,
+                image2,
+                image3,
+                image4,
+                image5,
+                image6,
+                image7,
+                image8,
+                image9,
+                image10,
+            ]
 
             # 处理参考图像(单张或多张) - 转换为内联数据格式
             for idx, images in enumerate(all_images, 1):
@@ -179,7 +197,9 @@ class ImageGeneratorImg2img(BaseImageGenerator):
             self.log("API响应接收成功，正在处理...")
 
             # 处理响应
-            img_tensor, response_text, model_version = self.process_response(response_data.get("data", {}))
+            img_tensor, response_text, model_version = self.process_response(
+                response_data.get("data", {})
+            )
 
             # 检查响应格式
             if response_text is None:
@@ -201,6 +221,3 @@ class ImageGeneratorImg2img(BaseImageGenerator):
             self.log(f"图像生成错误: {str(e)}")
             raise Exception(error_message)
             # return self.get_error_response(error_message)
-
-
-

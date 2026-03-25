@@ -245,10 +245,10 @@ class BaseImageGenerator:
             timeout=120,
         )
         res = response.json()
-        if res.get('ok'):
+        if res.get("ok"):
             return response
         else:
-            raise Exception(res.get('msg'))
+            raise Exception(res.get("msg"))
 
     def process_response(self, response_data):
         """处理API响应，提取图像和文本"""
@@ -325,14 +325,15 @@ class BaseImageGenerator:
         return img_tensor, response_text, model_version
 
     def get_error_response(self, error_message):
+        raise Exception(error_message)
         """返回错误响应"""
-        full_text = (
-            "## 处理日志\n"
-            + "\n".join(self.log_messages)
-            + "\n\n## 错误\n"
-            + error_message
-        )
-        return (self.generate_empty_image(512, 512), full_text)
+        # full_text = (
+        #     "## 处理日志\n"
+        #     + "\n".join(self.log_messages)
+        #     + "\n\n## 错误\n"
+        #     + error_message
+        # )
+        # return (self.generate_empty_image(512, 512), full_text)
 
     def get_success_response(self, img_tensor, response_text, model_version=""):
         """返回成功响应"""
