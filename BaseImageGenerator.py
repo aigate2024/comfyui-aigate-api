@@ -244,7 +244,11 @@ class BaseImageGenerator:
             json=payload,
             timeout=120,
         )
-        return response
+        res = response.json()
+        if res.get('ok'):
+            return response
+        else:
+            raise Exception(res.get('msg'))
 
     def process_response(self, response_data):
         """处理API响应，提取图像和文本"""

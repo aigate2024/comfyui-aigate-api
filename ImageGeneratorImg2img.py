@@ -147,7 +147,7 @@ class ImageGeneratorImg2img(BaseImageGenerator):
 
             # 将模型显示名称转换为模型ID
             model_id = self.get_model_pid(model)
-            
+
             # 根据选择的模型构造API地址
             self.api_base_url = self.api_base_url_template.format(model=model_id)
             self.log(f"使用模型: {model} (ID: {model_id})")
@@ -198,8 +198,9 @@ class ImageGeneratorImg2img(BaseImageGenerator):
 
         except Exception as e:
             error_message = f"处理过程中出错: {str(e)}"
-            self.log(f"Gemini图像生成错误: {str(e)}")
-            return self.get_error_response(error_message)
+            self.log(f"图像生成错误: {str(e)}")
+            raise Exception(error_message)
+            # return self.get_error_response(error_message)
 
 
 

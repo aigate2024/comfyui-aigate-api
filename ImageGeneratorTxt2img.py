@@ -6,7 +6,9 @@ class ImageGeneratorTxt2img(BaseImageGenerator):
     @classmethod
     def INPUT_TYPES(cls):
         model_choices = BaseImageGenerator.get_model_choices()
-        default_model = model_choices[0] if model_choices else "gemini-3-pro-image-preview"
+        default_model = (
+            model_choices[0] if model_choices else "gemini-3-pro-image-preview"
+        )
         return {
             "required": {
                 "prompt": ("STRING", {"multiline": True}),
@@ -48,7 +50,9 @@ class ImageGeneratorTxt2img(BaseImageGenerator):
 
         try:
             # 从settings中提取API密钥
-            api_key_from_settings = settings.get("apiKey", "") if isinstance(settings, dict) else ""
+            api_key_from_settings = (
+                settings.get("apiKey", "") if isinstance(settings, dict) else ""
+            )
             actual_api_key = self.get_api_key(api_key_from_settings)
 
             if not actual_api_key:
@@ -72,7 +76,7 @@ class ImageGeneratorTxt2img(BaseImageGenerator):
 
             # 将模型显示名称转换为模型ID
             model_id = self.get_model_pid(model)
-            
+
             # 根据选择的模型构造API地址
             self.api_base_url = self.api_base_url_template.format(model=model_id)
             self.log(f"使用模型: {model} (ID: {model_id})")
@@ -104,7 +108,9 @@ class ImageGeneratorTxt2img(BaseImageGenerator):
             self.log("API响应接收成功，正在处理...")
 
             # 处理响应
-            img_tensor, response_text, model_version = self.process_response(response_data.get("data", {}))
+            img_tensor, response_text, model_version = self.process_response(
+                response_data.get("data", {})
+            )
 
             # 检查响应格式
             if response_text is None:
@@ -123,5 +129,6 @@ class ImageGeneratorTxt2img(BaseImageGenerator):
 
         except Exception as e:
             error_message = f"处理过程中出错: {str(e)}"
-            self.log(f"Gemini图像生成错误: {str(e)}")
-            return self.get_error_response(error_message)
+            self.log(f"图像生成错误: {str(e)}")
+            # self.get_error_response(error_message)
+            raise Exception(error_message)
