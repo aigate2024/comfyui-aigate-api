@@ -14,7 +14,11 @@ class BaseImageGenerator:
     """图像生成器基类，包含所有共同的功能"""
 
     # 类级变量
-    api_host = "http://10.97.50.67:5070"
+    # 从环境变量获取api_host，如果未设置则使用默认值
+    api_host = os.getenv("WAAS_GENERATE_API", "http://10.97.50.67:5070")
+    if not api_host:
+        raise ValueError("未设置API环境变量！")
+    # 可用的备选值：
     # api_host = "http://waas.k8s.dev.inner/api"
     _models_cache = None  # 类级别缓存
     _models_map = {}  # pname -> pid 映射
@@ -392,7 +396,7 @@ class BaseImageGenerator:
         server = PromptServer.instance
 
         # 方法1: 从当前执行队列获取
-        if hasattr(server, 'last_prompt_id'):
+        if hasattr(server, "last_prompt_id"):
             prompt_id = server.last_prompt_id
 
         return prompt_id
