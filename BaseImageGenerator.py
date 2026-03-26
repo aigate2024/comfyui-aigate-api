@@ -26,7 +26,7 @@ class BaseImageGenerator:
         self.node_dir = os.path.dirname(os.path.abspath(__file__))
         self.key_file = os.path.join(self.node_dir, "gemini_api_key.txt")
         # API地址配置
-        self.api_base_url_template = f"{self.api_host}/generate/image/content"
+        self.api_base_url_template = f"{self.api_host}/image/content"
 
         # 检查依赖库版本
         try:
@@ -88,7 +88,7 @@ class BaseImageGenerator:
 
         try:
             # 尝试从新API获取模型列表
-            api_url = f"{cls.api_host}/generate/image/types"
+            api_url = f"{cls.api_host}/image/types"
             response = requests.get(api_url, timeout=5)
             if response.status_code == 200:
                 data = response.json()
