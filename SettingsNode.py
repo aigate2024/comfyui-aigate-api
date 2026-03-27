@@ -12,7 +12,7 @@ class SettingsNode:
         }
 
     RETURN_TYPES = ("STRUCT",)
-    CATEGORY = "云扉AiGate"
+    CATEGORY = "☁️ 云扉AiGate"
     FUNCTION = "process"  # Add FUNCTION attribute pointing to process method
 
     def process(self, apiKey):

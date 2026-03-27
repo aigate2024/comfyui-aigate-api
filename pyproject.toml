@@ -11,5 +11,5 @@ Repository = "https://github.com/jyoketsu/ComfyUI-WaaS-API"
 
 [tool.comfy]
 PublisherId = "xujie"
-DisplayName = "云扉AiGate"
+DisplayName = "☁️ 云扉AiGate"
 Icon = ""

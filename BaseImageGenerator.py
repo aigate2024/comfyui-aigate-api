@@ -98,7 +98,7 @@ class BaseImageGenerator:
                 "https": None,
             }
             response = requests.get(api_url, proxies=proxies, timeout=1200)
-            print(f"获取模型列表响应: {response.status_code} {response.text}")
+            # print(f"获取模型列表响应: {response.status_code} {response.text}")
             if response.status_code == 200:
                 data = response.json()
                 # 处理新的API响应格式：{"code": 0, "data": [...], "ok": true}

@@ -40,7 +40,7 @@ class ImageGeneratorTxt2img(BaseImageGenerator):
     RETURN_TYPES = ("IMAGE", "STRING")
     RETURN_NAMES = ("image", "API Respond")
     FUNCTION = "generate_image"
-    CATEGORY = "云扉AiGate"
+    CATEGORY = "☁️ 云扉AiGate"
 
     def generate_image(
         self,
