@@ -271,7 +271,7 @@ class BaseImageGenerator:
             api_url,
             headers=headers,
             json=payload,
-            timeout=300,
+            timeout=600,
         )
 
         # 检查HTTP状态码
