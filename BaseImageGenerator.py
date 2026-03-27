@@ -93,7 +93,11 @@ class BaseImageGenerator:
         try:
             # 尝试从新API获取模型列表
             api_url = f"{cls.api_host}/image/types"
-            response = requests.get(api_url, timeout=120)
+            proxies = {
+                "http": None,
+                "https": None,
+            }
+            response = requests.get(api_url, proxies=proxies, timeout=1200)
             print(f"获取模型列表响应: {response.status_code} {response.text}")
             if response.status_code == 200:
                 data = response.json()
@@ -267,12 +271,17 @@ class BaseImageGenerator:
         return payload
 
     def call_api(self, api_url, headers, payload):
+        proxies = {
+            "http": None,
+            "https": None,
+        }
         """调用API并返回响应"""
         response = requests.post(
             api_url,
             headers=headers,
             json=payload,
             timeout=600,
+            proxies=proxies,
         )
 
         # 检查HTTP状态码
