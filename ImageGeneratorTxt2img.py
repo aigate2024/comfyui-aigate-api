@@ -7,7 +7,7 @@ class ImageGeneratorTxt2img(BaseImageGenerator):
     def INPUT_TYPES(cls):
         model_choices = BaseImageGenerator.get_model_choices()
         default_model = (
-            model_choices[0] if model_choices else "gemini-3-pro-image-preview"
+            model_choices[0] if model_choices else ""
         )
         return {
             "required": {
