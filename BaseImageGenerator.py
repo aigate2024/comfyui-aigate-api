@@ -380,3 +380,14 @@ class BaseImageGenerator:
             return server.last_prompt_id
 
         return None
+
+    def mask_url(self, url):
+        """脱敏URL中的host部分"""
+        try:
+            from urllib.parse import urlparse
+            parsed = urlparse(url)
+            if parsed.hostname:
+                return f"{parsed.scheme}://***{parsed.path}{'?' + parsed.query if parsed.query else ''}"
+            return url
+        except Exception:
+            return url
