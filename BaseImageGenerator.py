@@ -51,20 +51,19 @@ class BaseImageGenerator:
         except Exception as e:
             print(f"无法检查版本信息: {e}")
 
-    def validate_image_size(self, img_byte_arr, max_size_mb=4):
+    def validate_image_size(self, numpy_array, max_size_mb=10):
         """
         验证图像大小是否超过限制
 
         Args:
-            img_byte_arr: BytesIO对象，包含图像数据
-            max_size_mb: 最大大小限制（MB），默认4MB
+            numpy_array: numpy数组，原始图像数据
+            max_size_mb: 最大大小限制（MB），默认10MB
 
         Returns:
             (bool, str): (通过验证, 消息)
         """
-        # 获取字节大小
-        img_bytes = img_byte_arr.getvalue()
-        size_bytes = len(img_bytes)
+        # 获取原始数据字节大小
+        size_bytes = numpy_array.nbytes
         size_mb = size_bytes / (1024 * 1024)
         max_size_bytes = max_size_mb * 1024 * 1024
 

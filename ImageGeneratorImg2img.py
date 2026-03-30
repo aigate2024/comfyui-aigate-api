@@ -136,6 +136,14 @@ class ImageGeneratorImg2img(BaseImageGenerator):
                             # 获取单张图像
                             input_image = images[i].cpu().numpy()
 
+                            # 验证图像大小（不超过10MB）
+                            is_valid, size_message = self.validate_image_size(
+                                input_image, max_size_mb=10
+                            )
+
+                            if not is_valid:
+                                raise Exception(size_message)
+
                             # 转换为PIL图像
                             input_image = (input_image * 255).astype(np.uint8)
                             pil_image = Image.fromarray(input_image)
@@ -144,19 +152,11 @@ class ImageGeneratorImg2img(BaseImageGenerator):
                                 f"参考图像 image{idx}[{i + 1}] 处理成功，尺寸: {pil_image.width}x{pil_image.height}"
                             )
 
-                            # 转换为base64
+                            # 转换为base64（使用JPEG格式以节省带宽）
                             img_byte_arr = BytesIO()
-                            pil_image.save(img_byte_arr, format="PNG")
-                            img_byte_arr.seek(0)
-
-                            # 验证图像大小（不超过4MB）
-                            is_valid, size_message = self.validate_image_size(
-                                img_byte_arr, max_size_mb=10
-                            )
-
-                            if not is_valid:
-                                raise Exception(size_message)
-
+                            if pil_image.mode == "RGBA":
+                                pil_image = pil_image.convert("RGB")
+                            pil_image.save(img_byte_arr, format="JPEG", quality=85)
                             img_byte_arr.seek(0)
                             image_base64 = base64.b64encode(img_byte_arr.read()).decode(
                                 "utf-8"
@@ -166,7 +166,7 @@ class ImageGeneratorImg2img(BaseImageGenerator):
                             parts.append(
                                 {
                                     "inlineData": {
-                                        "mimeType": "image/png",
+                                        "mimeType": "image/jpeg",
                                         "data": image_base64,
                                     }
                                 }
