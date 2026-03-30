@@ -136,14 +136,6 @@ class ImageGeneratorImg2img(BaseImageGenerator):
                             # 获取单张图像
                             input_image = images[i].cpu().numpy()
 
-                            # 验证图像大小（不超过10MB）
-                            is_valid, size_message = self.validate_image_size(
-                                input_image, max_size_mb=10
-                            )
-
-                            if not is_valid:
-                                raise Exception(size_message)
-
                             # 转换为PIL图像
                             input_image = (input_image * 255).astype(np.uint8)
                             pil_image = Image.fromarray(input_image)
@@ -157,6 +149,15 @@ class ImageGeneratorImg2img(BaseImageGenerator):
                             if pil_image.mode == "RGBA":
                                 pil_image = pil_image.convert("RGB")
                             pil_image.save(img_byte_arr, format="JPEG", quality=85)
+
+                            # 验证编码后图像大小（不超过10MB）
+                            encoded_size_mb = len(img_byte_arr.getvalue()) / (1024 * 1024)
+                            if encoded_size_mb > 10:
+                                raise Exception(
+                                    f"图像编码后大小 ({encoded_size_mb:.2f}MB) 超过限制 (10MB)"
+                                )
+                            print(f"图像编码后大小: {encoded_size_mb:.2f}MB")
+
                             img_byte_arr.seek(0)
                             image_base64 = base64.b64encode(img_byte_arr.read()).decode(
                                 "utf-8"

@@ -66,9 +66,10 @@ class BaseImageGenerator:
         size_bytes = numpy_array.nbytes
         size_mb = size_bytes / (1024 * 1024)
         max_size_bytes = max_size_mb * 1024 * 1024
+        print(f"原始图像编码后大小: {size_mb:.2f}MB")
 
         if size_bytes > max_size_bytes:
-            message = f"图像大小 ({size_mb:.2f}MB) 超过限制 ({max_size_mb}MB)"
+            message = f"图像编码后大小 ({size_mb:.2f}MB) 超过限制 ({max_size_mb}MB)"
             return False, message
 
         return True, f"图像大小验证通过 ({size_mb:.2f}MB)"
