@@ -16,6 +16,8 @@ class SettingsNode:
     FUNCTION = "process"  # Add FUNCTION attribute pointing to process method
 
     def process(self, apiKey):
+        if not apiKey or not apiKey.strip():
+            raise ValueError("API密钥不能为空，请输入有效的API密钥")
         return [
             {
                 "apiKey": apiKey,
