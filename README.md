@@ -15,7 +15,7 @@
 1. 将此存储库克隆到 ComfyUI 的 `custom_nodes` 目录：
    ```bash
    cd ~/comfyui/ComfyUI/custom_nodes
-   git clone https://github.com/jyoketsu/ComfyUI-WaaS-API.git
+   git clone https://github.com/aigate2024/comfyui-aigate-api.git
    ```
 
 2. 重启 ComfyUI

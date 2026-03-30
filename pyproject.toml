@@ -6,7 +6,7 @@ license = {file = "LICENSE"}
 dependencies = ["Pillow>=10.1.0", "requests", "numpy", "torch"]
 
 [project.urls]
-Repository = "https://github.com/jyoketsu/ComfyUI-WaaS-API"
+Repository = "https://github.com/aigate2024/comfyui-aigate-api.git"
 #  Used by Comfy Registry https://comfyregistry.org
 
 [tool.comfy]
