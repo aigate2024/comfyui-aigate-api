@@ -186,13 +186,10 @@ class ImageGeneratorImg2img(BaseImageGenerator):
             # 将模型显示名称转换为模型ID
             model_id = self.get_model_pid(model)
 
-            # 根据选择的模型构造API地址
-            self.api_base_url = self.api_base_url_template.format(model=model_id)
-            print(f"使用模型: {model} (ID: {model_id})")
-            print(f"API地址: {self.api_base_url}")
-
             # 构造API URL（不需要在URL中添加key参数）
-            api_url = f"{self.api_base_url}?code={model_id}"
+            api_url = f"{self.api_base_url_template}?code={model_id}"
+            print(f"使用模型: {model} (ID: {model_id})")
+            print(f"API地址: {api_url}")
 
             # 调试输出：打印请求信息
             # print(f"\n=== API请求调试信息 ===")

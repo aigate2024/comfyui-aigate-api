@@ -372,11 +372,11 @@ class BaseImageGenerator:
 
     def get_job_id(self):
         """从ComfyUI PromptServer获取当前job id"""
-        # 获取当前正在执行的 prompt_id
-        server = PromptServer.instance
+        server = getattr(PromptServer, "instance", None)
+        if server is None:
+            return None
 
-        # 方法1: 从当前执行队列获取
         if hasattr(server, "last_prompt_id"):
-            prompt_id = server.last_prompt_id
+            return server.last_prompt_id
 
-        return prompt_id
+        return None
